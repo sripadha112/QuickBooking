@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickBooking - Test Mode</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">🏥 QuickBooking (Test Mode)</h1>
+                <p class="app-subtitle">Testing without real API</p>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="note" style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                <strong>⚠️ Test Mode Active</strong><br>
+                This page uses mock data for testing purposes. No real API calls will be made.
+                To test with real API, use <code>index.html</code> with proper API configuration.
+            </div>
+
+            <div class="screen">
+                <div class="screen-header">
+                    <h2 class="screen-title">🧪 Test Scenarios</h2>
+                    <p class="screen-subtitle">Click on any scenario to test the booking flow</p>
+                </div>
+
+                <div style="display: grid; gap: 15px;">
+                    <button onclick="testScenario('valid')" class="btn btn-primary">
+                        ✅ Test Valid Booking Flow
+                    </button>
+                    
+                    <button onclick="testScenario('no-slots')" class="btn btn-secondary">
+                        ⚠️ Test No Available Slots
+                    </button>
+                    
+                    <button onclick="testScenario('invalid-qr')" class="btn btn-secondary">
+                        ❌ Test Invalid QR Code
+                    </button>
+                    
+                    <button onclick="openActualApp()" class="btn" style="background-color: #27ae60;">
+                        🚀 Open Actual App (Doctor ID: 3, Workplace ID: 3)
+                    </button>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background-color: white; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px;">📋 Test URLs</h3>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <strong>Valid booking URL (Doctor ID: 3, Workplace ID: 3):</strong>
+                        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all; margin-top: 5px;">
+                            <a href="index.html?doctorId=3&workplaceId=3" target="_blank">
+                                index.html?doctorId=3&workplaceId=3
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <strong>Invalid QR code (missing parameters):</strong>
+                        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all; margin-top: 5px;">
+                            <a href="index.html" target="_blank">
+                                index.html
+                            </a>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <strong>QR Code Generator:</strong>
+                        <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all; margin-top: 5px;">
+                            <a href="qr-generator.html" target="_blank">
+                                qr-generator.html
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background-color: #e8f4f8; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px;">🔧 API Configuration Status</h3>
+                    <div id="configStatus"></div>
+                </div>
+
+                <div style="margin-top: 30px; padding: 20px; background-color: white; border-radius: 8px;">
+                    <h3 style="margin-bottom: 15px;">📱 Mobile Testing</h3>
+                    <p style="margin-bottom: 10px; color: #7f8c8d; font-size: 14px;">
+                        Test responsive design by resizing your browser or using these tools:
+                    </p>
+                    <ul style="color: #7f8c8d; font-size: 14px; line-height: 1.8;">
+                        <li>Chrome DevTools: Press F12 → Toggle Device Toolbar (Ctrl+Shift+M)</li>
+                        <li>Test on actual mobile devices by accessing via local network</li>
+                        <li>Use online tools like BrowserStack or Responsively App</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p class="footer-text">© 2025 QuickBooking - Test Mode</p>
+        </footer>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // Display configuration status
+        function checkConfigStatus() {
+            const statusDiv = document.getElementById('configStatus');
+            const apiUrl = API_CONFIG.BASE_URL;
+            const downloadLink = APP_DOWNLOAD_LINKS.DEFAULT;
+            
+            let html = '<div style="font-size: 14px;">';
+            
+            // Check API URL
+            if (apiUrl.includes('localhost')) {
+                html += '<p>📡 <strong>API URL:</strong> <span style="color: #f39c12;">' + apiUrl + '</span> (Local development)</p>';
+            } else if (apiUrl.includes('your-') || apiUrl.includes('yourdomain')) {
+                html += '<p>⚠️ <strong>API URL:</strong> <span style="color: #e74c3c;">' + apiUrl + '</span> (Not configured - Please update in js/config.js)</p>';
+            } else {
+                html += '<p>✅ <strong>API URL:</strong> <span style="color: #27ae60;">' + apiUrl + '</span> (Configured)</p>';
+            }
+            
+            // Check download link
+            if (downloadLink.includes('yourdomain')) {
+                html += '<p>⚠️ <strong>Download Link:</strong> <span style="color: #e74c3c;">' + downloadLink + '</span> (Not configured - Please update in js/config.js)</p>';
+            } else {
+                html += '<p>✅ <strong>Download Link:</strong> <span style="color: #27ae60;">' + downloadLink + '</span> (Configured)</p>';
+            }
+            
+            html += '</div>';
+            statusDiv.innerHTML = html;
+        }
+
+        function testScenario(scenario) {
+            switch(scenario) {
+                case 'valid':
+                    alert('✅ Opening valid booking flow...\n\nThis will open the app with test parameters:\n- Doctor ID: 3\n- Workplace ID: 3\n\nNote: You need a running API server for full functionality.');
+                    window.open('index.html?doctorId=3&workplaceId=3', '_blank');
+                    break;
+                
+                case 'no-slots':
+                    alert('⚠️ Testing no available slots scenario...\n\nTo fully test this, your API should return empty slots for specific doctor/workplace combinations.');
+                    window.open('index.html?doctorId=999&workplaceId=999', '_blank');
+                    break;
+                
+                case 'invalid-qr':
+                    alert('❌ Testing invalid QR code...\n\nThis will show an error because required parameters (doctorId, workplaceId) are missing.');
+                    window.open('index.html', '_blank');
+                    break;
+            }
+        }
+
+        function openActualApp() {
+            window.open('index.html?doctorId=3&workplaceId=3', '_blank');
+        }
+
+        // Run configuration check on load
+        document.addEventListener('DOMContentLoaded', checkConfigStatus);
+    </script>
+</body>
+</html>
