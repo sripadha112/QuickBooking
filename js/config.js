@@ -2,10 +2,9 @@
 const API_CONFIG = {
     BASE_URL: 'http://192.168.1.74:8080/api', // Your actual API URL
     ENDPOINTS: {
-        DOCTOR_PROFILE: '/doctor/profile',
-        WORKPLACE_INFO: '/doctor/workplaces',
-        AVAILABLE_SLOTS: '/user/available-slots', // Updated endpoint
-        BOOK_APPOINTMENT: '/user/{userId}/appointments/book' // Updated endpoint
+        AVAILABLE_SLOTS: '/user/available-slots',
+        BOOK_APPOINTMENT: '/user/{userId}/appointments/book',
+        REGISTER_USER: '/register/user'
     }
 };
 

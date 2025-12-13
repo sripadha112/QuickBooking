@@ -10,6 +10,7 @@ let appState = {
     doctorInfo: null,
     workplaceInfo: null,
     userDetails: null,
+    userId: null, // Store registered user ID
     selectedDate: null,
     selectedSlot: null,
     allSlotsData: {},
@@ -21,8 +22,6 @@ let appState = {
  * Initialize app on page load
  */
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 QuickBooking App Initialized');
-    
     // Parse URL parameters to get doctorId, workplaceId, and optional details from QR code
     const urlParams = new URLSearchParams(window.location.search);
     appState.doctorId = urlParams.get('doctorId');
@@ -35,50 +34,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     const specialization = urlParams.get('specialization');
     const city = urlParams.get('city');
     
-    console.log('📋 URL Parameters:', { 
-        doctorId: appState.doctorId, 
-        workplaceId: appState.workplaceId,
-        doctorName,
-        clinicName,
-        clinicAddress,
-        specialization,
-        city
-    });
-    
     // Validate QR code parameters
     if (!appState.doctorId || !appState.workplaceId) {
         showError('Invalid QR Code', 'This QR code is invalid or expired. Please scan a valid QR code from the clinic.');
         return;
     }
     
-    // If doctor/clinic details are in URL, use them directly (skip API calls)
-    if (doctorName || clinicName) {
-        appState.doctorInfo = {
-            doctorId: appState.doctorId,
-            fullName: doctorName || 'Doctor',
-            doctorName: doctorName || 'Doctor',
-            specialization: specialization || ''
-        };
-        
-        appState.workplaceInfo = {
-            workplaceId: appState.workplaceId,
-            workplaceName: clinicName || 'Clinic',
-            clinicName: clinicName || 'Clinic',
-            address: clinicAddress || '',
-            city: city || ''
-        };
-        
-        console.log('✅ Using doctor/clinic info from URL parameters');
-        showScreen('userDetailsScreen');
-    } else {
-        // Load clinic and doctor information from API
-        try {
-            await loadClinicInformation();
-            showScreen('userDetailsScreen');
-        } catch (error) {
-            showError('Failed to Load Clinic Info', error.message);
-        }
-    }
+    // Store doctor/clinic details from URL parameters (or use defaults)
+    appState.doctorInfo = {
+        doctorId: appState.doctorId,
+        fullName: doctorName || 'Doctor',
+        doctorName: doctorName || 'Doctor',
+        specialization: specialization || ''
+    };
+    
+    appState.workplaceInfo = {
+        workplaceId: appState.workplaceId,
+        workplaceName: clinicName || 'Clinic',
+        clinicName: clinicName || 'Clinic',
+        address: clinicAddress || '',
+        city: city || ''
+    };
+    
+    // Populate clinic info from URL parameters
+    populateClinicInfo();
+    showScreen('userDetailsScreen');
     
     // Setup event listeners
     setupEventListeners();
@@ -134,107 +114,34 @@ function setupEventListeners() {
 }
 
 /**
- * Load clinic and doctor information
- */
-async function loadClinicInformation() {
-    showLoading(true);
-    try {
-        // Try to fetch doctor and workplace info, but don't fail if endpoints don't exist
-        let doctorInfo = null;
-        let workplaceInfo = null;
-        
-        try {
-            doctorInfo = await apiService.getDoctorProfile(appState.doctorId);
-            console.log('👨‍⚕️ Doctor Info:', doctorInfo);
-        } catch (error) {
-            console.warn('Doctor profile endpoint not available:', error.message);
-            // Use default/placeholder data
-            doctorInfo = {
-                doctorId: appState.doctorId,
-                fullName: 'Doctor',
-                doctorName: 'Doctor',
-                specialization: '',
-                designation: '',
-                experience: ''
-            };
-        }
-        
-        try {
-            workplaceInfo = await apiService.getWorkplaceInfo(appState.doctorId, appState.workplaceId);
-            console.log('🏥 Workplace Info:', workplaceInfo);
-        } catch (error) {
-            console.warn('Workplace info endpoint not available:', error.message);
-            // Use default/placeholder data
-            workplaceInfo = {
-                workplaceId: appState.workplaceId,
-                workplaceName: 'Clinic',
-                clinicName: 'Clinic',
-                workplaceType: '',
-                address: '',
-                city: '',
-                contactNumber: ''
-            };
-        }
-        
-        appState.doctorInfo = doctorInfo;
-        appState.workplaceInfo = workplaceInfo;
-        
-        // Populate clinic info card
-        populateClinicInfo();
-    } catch (error) {
-        console.error('Error loading clinic information:', error);
-        // Don't throw error, allow user to continue
-        // Use minimal placeholder data
-        appState.doctorInfo = {
-            doctorId: appState.doctorId,
-            fullName: 'Doctor',
-            doctorName: 'Doctor'
-        };
-        appState.workplaceInfo = {
-            workplaceId: appState.workplaceId,
-            workplaceName: 'Clinic',
-            clinicName: 'Clinic'
-        };
-        populateClinicInfo();
-    } finally {
-        showLoading(false);
-    }
-}
-
-/**
  * Populate clinic information card
  */
 function populateClinicInfo() {
     const clinicCard = document.getElementById('clinicInfoCard');
     if (!clinicCard) return;
     
-    const doctor = appState.doctorInfo || {};
-    const workplace = appState.workplaceInfo || {};
-    
-    const doctorName = doctor.fullName || doctor.doctorName || 'Doctor';
-    const workplaceName = workplace.workplaceName || workplace.clinicName || 'Clinic';
+    // Use URL parameters for display
+    const urlParams = new URLSearchParams(window.location.search);
+    const doctorName = urlParams.get('doctorName') || 'Doctor';
+    const specialization = urlParams.get('specialization') || '';
+    const clinicName = urlParams.get('clinicName') || 'Clinic';
+    const clinicAddress = urlParams.get('clinicAddress') || '';
+    const city = urlParams.get('city') || '';
     
     clinicCard.innerHTML = `
         <div class="clinic-header">
             <div class="doctor-avatar">
-                ${doctor.profileImage ? 
-                    `<img src="${doctor.profileImage}" alt="${doctorName}">` :
-                    `<div class="avatar-placeholder">${doctorName.charAt(0).toUpperCase()}</div>`
-                }
+                <div class="avatar-placeholder">${doctorName.charAt(0).toUpperCase()}</div>
             </div>
             <div class="clinic-details">
                 <h3 class="doctor-name">Dr. ${doctorName}</h3>
-                ${doctor.specialization ? `<p class="doctor-specialization">🩺 ${doctor.specialization}</p>` : ''}
-                ${doctor.designation ? `<p class="doctor-designation">${doctor.designation}</p>` : ''}
-                ${doctor.experience ? `<p class="doctor-experience">📋 ${doctor.experience} years experience</p>` : ''}
+                ${specialization ? `<p class="doctor-specialization">🩺 ${specialization}</p>` : ''}
             </div>
         </div>
         <div class="clinic-info">
-            <h4 class="clinic-name">🏥 ${workplaceName}</h4>
-            ${workplace.workplaceType ? `<p class="clinic-type">📍 ${workplace.workplaceType}</p>` : ''}
-            ${workplace.address ? `<p class="clinic-address">📮 ${workplace.address}</p>` : ''}
-            ${workplace.city ? `<p class="clinic-city">🌆 ${workplace.city}</p>` : ''}
-            ${workplace.contactNumber ? `<p class="clinic-phone">📞 ${workplace.contactNumber}</p>` : ''}
+            <h4 class="clinic-name">🏥 ${clinicName}</h4>
+            ${clinicAddress ? `<p class="clinic-address">📮 ${clinicAddress}</p>` : ''}
+            ${city ? `<p class="clinic-city">🌆 ${city}</p>` : ''}
         </div>
     `;
 }
@@ -242,7 +149,7 @@ function populateClinicInfo() {
 /**
  * Handle user details form submission
  */
-function handleUserDetailsSubmit(e) {
+async function handleUserDetailsSubmit(e) {
     e.preventDefault();
     
     // Collect form data
@@ -265,10 +172,34 @@ function handleUserDetailsSubmit(e) {
     // Save to state
     appState.userDetails = userDetails;
     
-    console.log('✅ User details saved:', userDetails);
     
-    // Load slots immediately (next 3 days)
-    loadAvailableSlots();
+    
+    // Register user in background before loading slots
+    showLoading(true);
+    try {
+        const registrationResponse = await apiService.registerUser(userDetails);
+        
+        // Handle both new registration and existing user
+        if (registrationResponse.userId) {
+            appState.userId = registrationResponse.userId;
+            
+            
+            if (registrationResponse.status === 'ERROR' && registrationResponse.message.includes('already exists')) {
+                
+            } else {
+                
+            }
+        } else {
+            throw new Error('No userId received from registration');
+        }
+        
+        // Load slots immediately (next 3 days)
+        await loadAvailableSlots();
+    } catch (error) {
+        console.error('❌ Registration error:', error);
+        alert('Failed to register user: ' + error.message);
+        showLoading(false);
+    }
 }
 
 /**
@@ -325,7 +256,7 @@ async function loadAvailableSlots() {
             appState.workplaceId
         );
         
-        console.log('📅 Slots data received:', slotsData);
+        
         
         // Process slots
         processSlots(slotsData);
@@ -365,7 +296,7 @@ async function loadAvailableSlots() {
  * Process slots data
  */
 function processSlots(slotsData) {
-    console.log('🔍 Raw slots data received:', slotsData);
+    
     
     // Handle different response formats
     let slotsByDate = {};
@@ -380,7 +311,7 @@ function processSlots(slotsData) {
     }
     // Format 3: Array of slot objects
     else if (Array.isArray(slotsData)) {
-        console.log('📋 Processing array of slots:', slotsData);
+        
         // Group by date
         slotsData.forEach(slot => {
             const dateKey = slot.date || slot.slotDate || new Date().toISOString().split('T')[0];
@@ -391,7 +322,7 @@ function processSlots(slotsData) {
         });
     }
     
-    console.log('📅 Processed slotsByDate:', slotsByDate);
+    
     
     if (!slotsByDate || Object.keys(slotsByDate).length === 0) {
         console.warn('⚠️ No slots found in response');
@@ -433,8 +364,8 @@ function processSlots(slotsData) {
     // Sort dates
     dates.sort();
     
-    console.log('✅ Final processed slots:', processedSlots);
-    console.log('✅ Available dates:', dates);
+    
+    
     
     appState.allSlotsData = processedSlots;
     appState.availableDates = dates;
@@ -444,7 +375,7 @@ function processSlots(slotsData) {
         appState.selectedDate = dates[0];
     }
     
-    console.log('✅ Processed slots:', { processedSlots, dates });
+    
 }
 
 /**
@@ -583,7 +514,7 @@ function selectSlot(slotId) {
     }
     
     appState.selectedSlot = slot;
-    console.log('✅ Selected slot:', slot);
+    
     
     // Show confirmation screen
     showConfirmationScreen();
@@ -641,21 +572,28 @@ async function handleConfirmBooking() {
     confirmBtn.textContent = 'Booking...';
     
     try {
+        // Check if user is registered
+        if (!appState.userId) {
+            throw new Error('User not registered. Please go back and fill in your details again.');
+        }
+
         const appointmentData = {
             doctorId: appState.doctorId,
             workplaceId: appState.workplaceId,
             requestedTime: new Date(appState.selectedSlot.date).toISOString(),
-            slot: appState.selectedSlot.time
+            slot: appState.selectedSlot.time,
+            notes: appState.userDetails.notes
         };
         
         console.log('📝 Booking appointment:', { 
+            userId: appState.userId,
             user: appState.userDetails, 
             appointment: appointmentData 
         });
         
-        const result = await apiService.bookAppointment(appState.userDetails, appointmentData);
+        const result = await apiService.bookAppointment(appState.userId, appointmentData, appState.userDetails);
         
-        console.log('✅ Booking successful:', result);
+        
         
         // Show success screen
         showSuccessScreen(result);
@@ -746,7 +684,7 @@ function showError(title, message) {
  * Show specific screen
  */
 function showScreen(screenId) {
-    console.log('🎬 Showing screen:', screenId);
+    
     
     // Hide all screens
     document.querySelectorAll('.screen').forEach(screen => {

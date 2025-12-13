@@ -200,5 +200,5 @@ Created: December 6, 2025
 Status: PRODUCTION READY ✅
 
 ╔══════════════════════════════════════════════════════════════════════════╗
-║                  © 2025 QuickBooking - All Rights Reserved              ║
+║                  © 2025 Line Application - All Rights Reserved              ║
 ╚══════════════════════════════════════════════════════════════════════════╝

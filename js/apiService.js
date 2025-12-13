@@ -17,12 +17,10 @@ class APIService {
             headers: {
                 'Content-Type': 'application/json',
             },
-            mode: 'cors', // Enable CORS
             ...options
         };
 
         try {
-            console.log('🌐 API Request:', url, defaultOptions);
             const response = await fetch(url, defaultOptions);
             
             if (!response.ok) {
@@ -31,37 +29,12 @@ class APIService {
             }
             
             const data = await response.json();
-            console.log('✅ API Response:', data);
             return data;
         } catch (error) {
-            console.error('❌ API Error:', error);
-            console.error('❌ Full URL:', url);
             if (error.message === 'Failed to fetch') {
-                throw new Error(`Cannot connect to API server at ${this.baseURL}. Please check:\n1. API server is running\n2. CORS is enabled on the server\n3. You're on the same network`);
+                throw new Error(`Cannot connect to API server. Please check if the server is running.`);
             }
             throw error;
-        }
-    }
-
-    /**
-     * Get doctor profile by ID
-     */
-    async getDoctorProfile(doctorId) {
-        try {
-            return await this.fetchAPI(`${API_CONFIG.ENDPOINTS.DOCTOR_PROFILE}/${doctorId}`);
-        } catch (error) {
-            throw new Error('Failed to fetch doctor profile: ' + error.message);
-        }
-    }
-
-    /**
-     * Get workplace information
-     */
-    async getWorkplaceInfo(doctorId, workplaceId) {
-        try {
-            return await this.fetchAPI(`${API_CONFIG.ENDPOINTS.WORKPLACE_INFO}/${workplaceId}?doctorId=${doctorId}`);
-        } catch (error) {
-            throw new Error('Failed to fetch workplace information: ' + error.message);
         }
     }
 
@@ -73,13 +46,7 @@ class APIService {
     async getAvailableSlots(doctorId, workplaceId) {
         try {
             const endpoint = `${API_CONFIG.ENDPOINTS.AVAILABLE_SLOTS}?doctorId=${doctorId}&workplaceId=${workplaceId}`;
-            
-            console.log('📡 Fetching slots from:', endpoint);
             const response = await this.fetchAPI(endpoint);
-            console.log('📦 Raw API response:', response);
-            console.log('📦 Response type:', typeof response);
-            console.log('📦 Is array?:', Array.isArray(response));
-            
             return response;
         } catch (error) {
             throw new Error('Failed to fetch available slots: ' + error.message);
@@ -87,87 +54,78 @@ class APIService {
     }
 
     /**
-     * Book appointment for guest user (no registration required)
-     * @param {Object} bookingData - Booking details
+     * Register user
+     * @param {Object} userDetails - User registration details
+     * @returns {Object} Response with userId
      */
-    async bookGuestAppointment(bookingData) {
+    async registerUser(userDetails) {
         try {
-            const endpoint = API_CONFIG.ENDPOINTS.BOOK_APPOINTMENT;
-            const response = await this.fetchAPI(endpoint, {
+            const endpoint = API_CONFIG.ENDPOINTS.REGISTER_USER;
+            const userData = {
+                mobileNumber: userDetails.phone,
+                fullName: userDetails.name,
+                email: userDetails.email || '',
+                address: '',
+                city: userDetails.city,
+                state: '',
+                pincode: '',
+                country: ''
+            };
+
+            const url = `${this.baseURL}${endpoint}`;
+            const response = await fetch(url, {
                 method: 'POST',
-                body: JSON.stringify(bookingData)
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(userData)
             });
-            return response;
+
+            const data = await response.json();
+
+            // Check if user already exists
+            if (data.status === 'ERROR' && data.message && data.message.includes('already exists') && data.userId) {
+                // User already exists, return the existing userId
+                return {
+                    userId: data.userId,
+                    isExistingUser: true,
+                    message: 'Existing user found'
+                };
+            }
+
+            // Check for other errors
+            if (!response.ok && !data.userId) {
+                throw new Error(data.message || `Registration failed with status: ${response.status}`);
+            }
+
+            // Successful registration
+            return {
+                userId: data.userId || data.id,
+                isExistingUser: false,
+                message: 'User registered successfully'
+            };
         } catch (error) {
-            throw new Error('Failed to book appointment: ' + error.message);
+            throw new Error('Failed to register user: ' + error.message);
         }
     }
 
     /**
-     * Alternative: Book appointment via user endpoint (if guest endpoint not available)
-     * This creates a temporary user and books appointment
+     * Book appointment with registered user ID
+     * @param {number} userId - User ID from registration
+     * @param {Object} appointmentData - Appointment details
+     * @param {Object} userDetails - User details for notes
      */
-    async bookAppointmentWithUserCreation(userDetails, appointmentData) {
+    async bookAppointment(userId, appointmentData, userDetails) {
         try {
-            // First create a guest/temporary user
-            const createUserEndpoint = '/user/register-guest';
-            const userResponse = await this.fetchAPI(createUserEndpoint, {
-                method: 'POST',
-                body: JSON.stringify({
-                    fullName: userDetails.name,
-                    phoneNumber: userDetails.phone,
-                    email: userDetails.email || '',
-                    city: userDetails.city,
-                    age: userDetails.age,
-                    gender: userDetails.gender,
-                    isGuest: true
-                })
-            });
-
-            const userId = userResponse.userId || userResponse.id;
-
-            // Then book appointment with the created user ID
-            const bookingEndpoint = `/user/${userId}/appointments`;
-            const bookingResponse = await this.fetchAPI(bookingEndpoint, {
-                method: 'POST',
-                body: JSON.stringify({
-                    doctorId: appointmentData.doctorId,
-                    workplaceId: appointmentData.workplaceId,
-                    requestedTime: appointmentData.requestedTime,
-                    slot: appointmentData.slot,
-                    notes: userDetails.notes || 'Guest booking via QR code'
-                })
-            });
-
-            return bookingResponse;
-        } catch (error) {
-            throw new Error('Failed to book appointment with user creation: ' + error.message);
-        }
-    }
-
-    /**
-     * Simplified booking method that uses the standard user booking endpoint
-     * For guest users, we'll use a temporary userId (you can modify this logic)
-     */
-    async bookAppointment(userDetails, appointmentData) {
-        try {
-            // Use a temporary userId (3) for guest bookings
-            // You can modify this to create a user first if needed
-            const userId = 3; // Temporary user ID for testing
-            
-            // Prepare booking data according to your API specification
             const bookingData = {
                 doctorId: appointmentData.doctorId,
                 workplaceId: appointmentData.workplaceId,
                 requestedTime: appointmentData.requestedTime,
                 slot: appointmentData.slot,
-                notes: appointmentData.notes || `Guest: ${userDetails.name}, Phone: ${userDetails.phone}, Age: ${userDetails.age}, Gender: ${userDetails.gender}, City: ${userDetails.city}`
+                notes: appointmentData.notes || `Booking via QuickBooking. Notes: ${userDetails.notes || 'None'}`
             };
 
-            console.log('📝 Booking appointment with data:', bookingData);
-
-            // Use the user-specific booking endpoint
-            const endpoint = `/user/${userId}/appointments/book`;
+            const endpoint = API_CONFIG.ENDPOINTS.BOOK_APPOINTMENT.replace('{userId}', userId);
             const response = await this.fetchAPI(endpoint, {
                 method: 'POST',
                 body: JSON.stringify(bookingData)
