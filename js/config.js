@@ -1,6 +1,7 @@
 // API Configuration
 const API_CONFIG = {
-    BASE_URL: 'http://192.168.1.74:8080/api', // Your actual API URL
+    //BASE_URL: 'http://192.168.1.74:8080/api', // local application url, use it while testing bro.
+    BASE_URL: 'https://line-application-latest.onrender.com', // actual API URL
     ENDPOINTS: {
         AVAILABLE_SLOTS: '/user/available-slots',
         BOOK_APPOINTMENT: '/user/{userId}/appointments/book',
@@ -8,9 +9,9 @@ const API_CONFIG = {
     }
 };
 
-// App Download Links (Update these with actual links)
+// App Download Links
 const APP_DOWNLOAD_LINKS = {
-    DEFAULT: 'https://yourdomain.com/download', // Update with actual link
+    DEFAULT: 'https://yourdomain.com/download', 
     ANDROID: 'https://play.google.com/store/apps/details?id=com.quickbooking',
     IOS: 'https://apps.apple.com/app/quickbooking/id123456789'
 };
