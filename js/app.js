@@ -174,21 +174,19 @@ async function handleUserDetailsSubmit(e) {
     
     
     
-    // Register user in background before loading slots
-    showLoading(true);
+    // Show loading on the submit button
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<div class="btn-spinner"></div> Loading...';
+    
     try {
+        // Register user in background before loading slots
         const registrationResponse = await apiService.registerUser(userDetails);
         
         // Handle both new registration and existing user
         if (registrationResponse.userId) {
             appState.userId = registrationResponse.userId;
-            
-            
-            if (registrationResponse.status === 'ERROR' && registrationResponse.message.includes('already exists')) {
-                
-            } else {
-                
-            }
         } else {
             throw new Error('No userId received from registration');
         }
@@ -198,7 +196,10 @@ async function handleUserDetailsSubmit(e) {
     } catch (error) {
         console.error('❌ Registration error:', error);
         alert('Failed to register user: ' + error.message);
-        showLoading(false);
+        
+        // Restore button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
     }
 }
 
