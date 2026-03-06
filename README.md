@@ -15,9 +15,9 @@ A mobile-responsive web application for booking doctor appointments via QR code 
 
 ## 🚀 Live Demo
 
-**GitHub Pages URL**: `https://[your-username].github.io/QuickBooking/`
+**Live URL**: `https://neextapp.com/`
 
-(Update this with your actual GitHub Pages URL after deployment)
+The application is live and accessible at the custom domain above.
 
 ## 📋 How It Works
 
@@ -41,7 +41,7 @@ A mobile-responsive web application for booking doctor appointments via QR code 
 The QR code should contain a URL with the following format:
 
 ```
-https://[your-domain]/QuickBooking/?doctorId=123&workplaceId=456
+https://neextapp.com/?doctorId=123&workplaceId=456
 ```
 
 Parameters:
@@ -67,7 +67,7 @@ Update app download links in `js/config.js`:
 
 ```javascript
 const APP_DOWNLOAD_LINKS = {
-    DEFAULT: 'https://yourdomain.com/download',
+    DEFAULT: 'https://neextapp.com/download',
     ANDROID: 'https://play.google.com/store/apps/details?id=com.quickbooking',
     IOS: 'https://apps.apple.com/app/quickbooking/id123456789'
 };
@@ -127,7 +127,8 @@ git push -u origin main
    - Folder: `/ (root)`
 5. Click **Save**
 6. Wait a few minutes for deployment
-7. Your site will be available at: `https://[YOUR-USERNAME].github.io/QuickBooking/`
+7. Configure custom domain at: Settings → Pages → Custom domain
+8. Your site will be available at: `https://neextapp.com/`
 
 ## 🔧 Local Development
 
@@ -262,8 +263,8 @@ This project is licensed for use by [Your Organization Name].
 ## 👥 Support
 
 For issues or questions:
-- 📧 Email: support@yourdomain.com
-- 🌐 Website: https://yourdomain.com
+- 📧 Email: support@neextapp.com
+- 🌐 Website: https://neextapp.com
 - 📱 Phone: +XX-XXXXXXXXXX
 
 ## 🔄 Updates
