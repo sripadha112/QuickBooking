@@ -15,9 +15,12 @@ A mobile-responsive web application for booking doctor appointments via QR code 
 
 ## 🚀 Live Demo
 
-**Live URL**: `https://neextapp.com/`
+**Live URL**: `https://neextapp.com/booking/`
 
-The application is live and accessible at the custom domain above.
+⚠️ **Note**: This feature has been integrated into the main Line_App repository.  
+The live URL is now at `/booking/` subdirectory of the main domain.
+
+For deployment and configuration, see the main Line_App repository.
 
 ## 📋 How It Works
 
