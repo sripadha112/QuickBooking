@@ -15,7 +15,7 @@ A mobile-responsive web application for booking doctor appointments via QR code 
 
 ## 🚀 Live Demo
 
-**Live URL**: `https://neextapp.com/booking/`
+**Live URL**: `https://kedulz.com/booking/`
 
 ⚠️ **Note**: This feature has been integrated into the main Line_App repository.  
 The live URL is now at `/booking/` subdirectory of the main domain.
@@ -44,7 +44,7 @@ For deployment and configuration, see the main Line_App repository.
 The QR code should contain a URL with the following format:
 
 ```
-https://neextapp.com/?doctorId=123&workplaceId=456
+https://kedulz.com/?doctorId=123&workplaceId=456
 ```
 
 Parameters:
@@ -70,7 +70,7 @@ Update app download links in `js/config.js`:
 
 ```javascript
 const APP_DOWNLOAD_LINKS = {
-    DEFAULT: 'https://neextapp.com/download',
+    DEFAULT: 'https://kedulz.com/download',
     ANDROID: 'https://play.google.com/store/apps/details?id=com.quickbooking',
     IOS: 'https://apps.apple.com/app/quickbooking/id123456789'
 };
@@ -131,7 +131,7 @@ git push -u origin main
 5. Click **Save**
 6. Wait a few minutes for deployment
 7. Configure custom domain at: Settings → Pages → Custom domain
-8. Your site will be available at: `https://neextapp.com/`
+8. Your site will be available at: `https://kedulz.com/`
 
 ## 🔧 Local Development
 
@@ -266,8 +266,8 @@ This project is licensed for use by [Your Organization Name].
 ## 👥 Support
 
 For issues or questions:
-- 📧 Email: support@neextapp.com
-- 🌐 Website: https://neextapp.com
+- 📧 Email: support@kedulz.com
+- 🌐 Website: https://kedulz.com
 - 📱 Phone: +XX-XXXXXXXXXX
 
 ## 🔄 Updates
